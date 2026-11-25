@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Kalender">
+<link rel="apple-touch-icon" href="icon-kalender.png">
+<title>Dindar Kalender</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f1ec;--card:#fff;--ink:#121212;--soft:#6b655c;--line:#e4dfd5;--gold:#c99a2e;--gold2:#e6bd55;--black:#111;--red:#d7263d;--blue:#1d4ed8;--green:#16a34a;--rowh:40px}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:Oswald,Impact,sans-serif;text-transform:uppercase;margin:0;line-height:1.05}
+button{font:inherit;cursor:pointer}
+.demo{background:var(--gold2);color:#111;text-align:center;font-size:13px;font-weight:500;padding:6px 16px}
+header{background:var(--black);color:#fff;padding:12px max(16px,2vw);display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.logo{font:700 22px Oswald,sans-serif;letter-spacing:.12em;display:flex;align-items:center;gap:10px}
+.logo i{width:8px;height:28px;border-radius:4px;background:repeating-linear-gradient(-45deg,var(--red) 0 6px,#fff 6px 12px,var(--blue) 12px 18px,#fff 18px 24px)}
+.logo small{font:500 12px Inter,sans-serif;letter-spacing:0;color:var(--gold2);text-transform:none}
+.sp{flex:1}
+.hb{border:1px solid #3a3733;background:#1e1c1a;color:#fff;border-radius:10px;padding:9px 14px;min-height:40px;font-weight:500}
+.hb:hover{border-color:var(--gold2)}
+.hb.on{background:var(--gold2);color:#111;border-color:var(--gold2)}
+.hb.sim{background:var(--green);border-color:var(--green)}
+main{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;padding:18px max(16px,2vw)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px}
+.cal{padding:14px;overflow:hidden}
+.calhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px}
+.calhead h2{font-size:24px;margin-right:auto}
+.nb{border:1px solid var(--line);background:#fff;border-radius:10px;min-width:40px;min-height:40px;padding:0 12px;font-weight:500}
+.nb:hover{border-color:var(--gold)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--soft);margin-bottom:10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:var(--c)}
+.scroll{overflow-x:auto}
+.grid{display:grid;grid-template-columns:52px repeat(6,minmax(110px,1fr));min-width:720px}
+.dh{position:sticky;top:0;text-align:center;padding:8px 4px;font-weight:700;border-bottom:1px solid var(--line);background:#fff;z-index:2}
+.dh small{display:block;font-weight:400;color:var(--soft)}
+.dh.today{color:var(--gold)}
+.tc div{height:var(--rowh);font-size:12px;color:var(--soft);text-align:right;padding-right:8px;transform:translateY(-7px)}
+.col{position:relative;border-left:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0 calc(var(--rowh) - 1px),#f0ece4 calc(var(--rowh) - 1px) var(--rowh));cursor:copy}
+.col.today{background-color:#fffaf0}
+.closed{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,#f1eee8 0 6px,#e8e3da 6px 12px);pointer-events:none}
+.now{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:3;pointer-events:none}
+.now::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--red)}
+.ev{position:absolute;left:4px;right:4px;border-radius:8px;padding:3px 7px;font-size:12px;line-height:1.3;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;cursor:pointer;border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 16%,#fff);transition:transform .15s}
+.ev:hover{transform:scale(1.02);z-index:4}
+.ev b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev.new{animation:flash 1s 4}
+@keyframes flash{50%{box-shadow:0 0 0 4px var(--gold2)}}
+.online{--c:#c99a2e}.laden{--c:#1d4ed8}.telefon{--c:#6b7280}
+aside{display:grid;gap:18px;align-content:start}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}
+.stats div{background:var(--bg);border-radius:12px;padding:12px}
+.stats strong{display:block;font:700 30px Oswald,sans-serif}
+.stats span{font-size:13px;color:var(--soft)}
+.list{padding:14px}
+.list h3{font-size:20px;margin-bottom:10px}
+.item{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;padding:10px;border-radius:10px;border-left:4px solid var(--c);background:color-mix(in srgb,var(--c) 10%,#fff);margin-bottom:8px;cursor:pointer}
+.item b{font-family:Oswald,sans-serif;font-size:18px}
+.item small{display:block;color:var(--soft)}
+.empty{color:var(--soft);font-size:14px}
+.wait{padding:14px}
+.wait h3{font-size:20px;margin-bottom:10px}
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.seg button{border:1.5px solid var(--line);background:#fff;border-radius:10px;min-height:42px;font-weight:500}
+.seg button[aria-pressed=true]{background:var(--black);color:#fff;border-color:var(--black)}
+.wait p{font-size:13px;color:var(--soft);margin:8px 0 0}
+.toast{position:fixed;right:18px;top:18px;z-index:50;width:min(360px,calc(100vw - 36px));background:var(--black);color:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 20px 40px -12px rgba(0,0,0,.5);border-left:6px solid var(--gold2);transform:translateY(-140%);transition:transform .35s cubic-bezier(.2,1.4,.4,1)}
+.toast.show{transform:none}
+.toast h3{font-size:18px;color:var(--gold2);margin-bottom:4px}
+.toast p{margin:0;color:#ddd}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px}
+.dlg{background:#fff;border-radius:18px;padding:22px;width:min(420px,100%)}
+.dlg h3{font-size:24px;margin-bottom:4px}
+.dlg .sub{color:var(--soft);margin:0 0 16px}
+.dlg label{display:grid;gap:5px;font-weight:500;font-size:14px;margin-bottom:12px}
+.dlg input,.dlg select{font:16px Inter,sans-serif;min-height:46px;padding:0 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff}
+.dlg .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.pb{flex:1;min-height:46px;border-radius:10px;border:0;background:var(--black);color:#fff;font-weight:700}
+.pb.alt{background:#eee;color:#111}.pb.del{background:#fde2e2;color:#a11}
+.dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0 0 10px}
+.dl dt{color:var(--soft)}.dl dd{margin:0;font-weight:700}
+.err{color:var(--red);font-size:14px;min-height:18px;margin:0}
+@media(max-width:1000px){main{grid-template-columns:minmax(0,1fr)}aside{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
+@media(max-width:560px){:root{--rowh:36px}.hb{padding:8px 10px;font-size:14px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="demo">Demo der Kalender-App für die Theke. Alle Beispieltermine sind erfunden.</div>
+<header>
+  <div class="logo"><i></i><div>DINDAR<br><small>Kalender · Theke</small></div></div>
+  <div class="sp"></div>
+  <button class="hb" id="snd">🔇 Ton aktivieren</button>
+  <button class="hb sim" id="sim">Demo: Kunde bucht online</button>
+</header>
+<main>
+  <section class="panel cal">
+    <div class="calhead"><h2 id="wk"></h2><button class="nb" id="prev" aria-label="Vorige Woche">‹</button><button class="nb" id="today">Heute</button><button class="nb" id="next" aria-label="Nächste Woche">›</button></div>
+    <div class="legend"><span class="online" style="--c:#c99a2e">Online gebucht</span><span style="--c:#1d4ed8">Im Laden eingetragen</span><span style="--c:#6b7280">Telefonisch</span><span style="--c:#e8e3da">Geschlossen</span></div>
+    <div class="scroll"><div class="grid" id="grid"></div></div>
+    <p class="empty" style="margin:10px 0 0">Tipp: Auf eine freie Stelle klicken, um einen Kunden einzutragen.</p>
+  </section>
+  <aside>
+    <div class="panel stats" id="stats"></div>
+    <div class="panel wait"><h3>Wartezeit jetzt</h3><div class="seg" id="seg"><button data-w="0">Frei</button><button data-w="15">15</button><button data-w="30">30</button><button data-w="45">45+</button></div><p>Wird sofort auf der Website angezeigt.</p></div>
+    <div class="panel list"><h3>Heute als Nächstes</h3><div id="next3"></div></div>
+  </aside>
+</main>
+<div class="toast" id="toast"><h3>Neue Online-Buchung</h3><p id="tmsg"></p></div>
+<div class="modal" id="modal" hidden><div class="dlg" id="dlg"></div></div>
+<script>
+{
+const SV=[["Haarschnitt",18,1],["Maschinenschnitt",12,1],["Bartpflege / Bartrasur",12,1],["Haarschnitt & Bart",30,2],["Bartfärben",10,1],["Waschen & Föhnen",10,1],["Augenbrauen zupfen",7,1],["Heißwachs",7,1],["Gesichtspflege (Maske)",10,1],["Haarfärben",15,2],["Kinderhaarschnitt",15,1],["Dindar Premium Paket",45,3],["Damen: Schneiden",25,2],["Damen: Färben",25,3]];
+const OPEN=[[9,19],[9,19],[9,19],[9,19],[9,19],[9,17],null];
+const KEY="dindar-demo-bookings",WKEY="dindar-demo-wait";
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const wd=d=>(d.getDay()+6)%7;
+const tmin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
+const mt=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+const svc=n=>SV.find(s=>s[0]===n)||SV[0];
+function load(){let b=null;try{b=JSON.parse(localStorage.getItem(KEY))}catch(e){}if(!Array.isArray(b)){b=seed();save(b)}return b}
+function save(b){try{localStorage.setItem(KEY,JSON.stringify(b))}catch(e){}}
+function seed(){const N=["Ali K.","Jonas M.","Murat S.","Leon B.","Elias R.","Can Y.","Tim W.","Yusuf A.","Max P.","David H.","Emre T.","Lukas F."];const out=[];let r=7;const rnd=()=>(r=r*16807%2147483647)/2147483647;const mon=new Date();mon.setDate(mon.getDate()-wd(mon));for(let i=0;i<13;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const o=OPEN[wd(d)];if(!o)continue;for(let k=0;k<4;k++){const s=SV[Math.floor(rnd()*6)];const st=o[0]*60+Math.floor(rnd()*((o[1]-o[0])*2-s[2]))*30;const day=ymd(d);if(!free(out,day,st,s[2]))continue;out.push({id:"s"+i+k,d:day,t:mt(st),svc:s[0],name:N[Math.floor(rnd()*N.length)],phone:"0176 555 0"+pad(Math.floor(rnd()*99)),src:["online","laden","telefon"][Math.floor(rnd()*3)]})}}return out}
+function free(b,day,st,dur){const o=OPEN[wd(new Date(day+"T12:00"))];if(!o||st<o[0]*60||st+dur*30>o[1]*60)return false;return !b.some(x=>x.d===day&&tmin(x.t)<st+dur*30&&st<tmin(x.t)+svc(x.svc)[2]*30)}
+
+const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const SRC={online:"Online",laden:"Im Laden",telefon:"Telefon"};
+let wkOff=0,fresh=new Set(),ac=null,sound=false;
+const monday=()=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-wd(d)+wkOff*7);return d};
+const fmt=d=>d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"numeric"});
+const H0=9,H1=19,R=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rowh"));
+function chime(){if(!sound||!ac)return;const t=ac.currentTime;[[784,0],[1047,.14],[1319,.28]].forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.9);o.connect(g).connect(ac.destination);o.start(t+d);o.stop(t+d+1)})}
+function render(){
+ const b=load(),m=monday(),rh=R(),today=ymd(new Date());
+ const end=new Date(m);end.setDate(m.getDate()+5);
+ document.getElementById("wk").textContent=`${m.toLocaleDateString("de-DE",{day:"numeric",month:"short"})} – ${end.toLocaleDateString("de-DE",{day:"numeric",month:"short",year:"numeric"})}`;
+ let h=`<div></div>`;const ds=[];
+ for(let i=0;i<6;i++){const d=new Date(m);d.setDate(m.getDate()+i);ds.push(d);h+=`<div class="dh ${ymd(d)===today?"today":""}">${d.toLocaleDateString("de-DE",{weekday:"long"})}<small>${d.toLocaleDateString("de-DE",{day:"numeric",month:"numeric"})}</small></div>`}
+ h+=`<div class="tc">${Array.from({length:(H1-H0)*2},(_,k)=>`<div>${k%2?"":(H0+k/2)+":00"}</div>`).join("")}</div>`;
+ ds.forEach(d=>{const day=ymd(d),o=OPEN[wd(d)];let c=`<div class="col ${day===today?"today":""}" data-day="${day}" style="height:${(H1-H0)*2*rh}px">`;
+  if(o&&o[1]<H1)c+=`<div class="closed" style="top:${(o[1]-H0)*2*rh}px;bottom:0"></div>`;
+  b.filter(x=>x.d===day).forEach(x=>{const st=tmin(x.t),du=svc(x.svc)[2];c+=`<div class="ev ${x.src} ${fresh.has(x.id)?"new":""}" data-id="${x.id}" style="top:${(st/30-H0*2)*rh+1}px;height:${du*rh-2}px"><b>${esc(x.name)}</b>${x.t} · ${esc(x.svc)}</div>`});
+  if(day===today){const n=new Date(),mm=n.getHours()*60+n.getMinutes();if(mm>=H0*60&&mm<=H1*60)c+=`<div class="now" style="top:${(mm/30-H0*2)*rh}px"></div>`}
+  c+=`</div>`;h+=c});
+ document.getElementById("grid").innerHTML=h;
+ const tb=b.filter(x=>x.d===today),n=new Date(),nm=n.getHours()*60+n.getMinutes();
+ const up=tb.filter(x=>tmin(x.t)+svc(x.svc)[2]*30>nm).sort((a,c)=>tmin(a.t)-tmin(c.t));
+ const wkB=b.filter(x=>x.d>=ymd(ds[0])&&x.d<=ymd(ds[5]));
+ document.getElementById("stats").innerHTML=`<div><strong>${tb.length}</strong><span>Termine heute</span></div><div><strong>${tb.filter(x=>x.src==="online").length}</strong><span>davon online</span></div><div><strong>${wkB.length}</strong><span>Termine diese Woche</span></div><div><strong>${tb.reduce((s,x)=>s+svc(x.svc)[1],0)} €</strong><span>Umsatz heute (geplant)</span></div>`;
+ document.getElementById("next3").innerHTML=up.length?up.slice(0,4).map(x=>`<div class="item ${x.src}" data-id="${x.id}"><b>${x.t}</b><div>${esc(x.name)}<small>${esc(x.svc)} · ${SRC[x.src]}</small></div></div>`).join(""):`<p class="empty">Heute stehen keine weiteren Termine an.</p>`;
+}
+const grid=document.getElementById("grid");
+function modal(html){const m=document.getElementById("modal");document.getElementById("dlg").innerHTML=html;m.hidden=false}
+function close(){document.getElementById("modal").hidden=true}
+document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal"||e.target.dataset.x==="close")close()});
+function openEv(id){const x=load().find(y=>y.id===id);if(!x)return;const s=svc(x.svc);
+ modal(`<h3>${esc(x.name)}</h3><p class="sub">${fmt(new Date(x.d+"T12:00"))}, ${x.t} – ${mt(tmin(x.t)+s[2]*30)} Uhr</p><dl class="dl"><dt>Leistung</dt><dd>${esc(x.svc)}</dd><dt>Preis</dt><dd>${s[1]} €</dd><dt>Telefon</dt><dd>${esc(x.phone)}</dd><dt>Gebucht</dt><dd>${SRC[x.src]}</dd></dl><div class="row"><button class="pb del" id="del" data-id="${x.id}">Termin löschen</button><button class="pb alt" data-x="close">Schließen</button></div>`)}
+function openNew(day,st){const o=OPEN[wd(new Date(day+"T12:00"))];if(!o)return;
+ modal(`<h3>Kunde eintragen</h3><p class="sub">${fmt(new Date(day+"T12:00"))}, ${mt(st)} Uhr</p><label>Name<input id="nN"></label><label>Telefon (optional)<input id="nP" type="tel"></label><label>Leistung<select id="nS">${SV.map(s=>`<option>${esc(s[0])}</option>`).join("")}</select></label><label>Wie gebucht?<select id="nQ"><option value="laden">Im Laden</option><option value="telefon">Telefon</option></select></label><p class="err" id="nE"></p><div class="row"><button class="pb" id="add" data-day="${day}" data-st="${st}">Eintragen</button><button class="pb alt" data-x="close">Abbrechen</button></div>`);setTimeout(()=>document.getElementById("nN").focus(),50)}
+document.addEventListener("click",e=>{
+ const ev=e.target.closest(".ev,.item");if(ev){openEv(ev.dataset.id);return}
+ const col=e.target.closest(".col");if(col){const y=e.clientY-col.getBoundingClientRect().top;openNew(col.dataset.day,H0*60+Math.floor(y/R())*30);return}
+ if(e.target.id==="del"){save(load().filter(x=>x.id!==e.target.dataset.id));close();render()}
+ if(e.target.id==="add"){const n=document.getElementById("nN").value.trim(),s=document.getElementById("nS").value,day=e.target.dataset.day,st=+e.target.dataset.st;
+  if(n.length<2){document.getElementById("nE").textContent="Bitte einen Namen eingeben.";return}
+  const b=load();if(!free(b,day,st,svc(s)[2])){document.getElementById("nE").textContent="Zu dieser Zeit ist schon ein Termin oder der Laden ist zu.";return}
+  b.push({id:"l"+Date.now(),d:day,t:mt(st),svc:s,name:n,phone:document.getElementById("nP").value.trim()||"–",src:document.getElementById("nQ").value});save(b);close();render()}
+});
+document.getElementById("prev").onclick=()=>{wkOff--;render()};
+document.getElementById("next").onclick=()=>{wkOff++;render()};
+document.getElementById("today").onclick=()=>{wkOff=0;render()};
+const sb=document.getElementById("snd");
+sb.onclick=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}sound=!sound;sb.textContent=sound?"🔔 Ton an":"🔇 Ton aktivieren";sb.classList.toggle("on",sound);if(sound)chime()};
+let tt;function notify(x){fresh.add(x.id);chime();document.getElementById("tmsg").innerHTML=`<b>${esc(x.name)}</b> · ${esc(x.svc)}<br>${fmt(new Date(x.d+"T12:00"))} um ${x.t} Uhr`;const t=document.getElementById("toast");t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),6000);
+ const xm=new Date(x.d+"T12:00"),m=monday();wkOff+=Math.floor((xm-m)/(7*864e5));render()}
+document.getElementById("sim").onclick=()=>{const N=["Kerem D.","Felix N.","Ahmet Y.","Noah L.","Omar B.","Paul S."];const b=load(),n=new Date();
+ for(let tries=0;tries<200;tries++){const d=new Date(n);d.setDate(n.getDate()+Math.floor(Math.random()*4));const o=OPEN[wd(d)];if(!o)continue;const s=SV[Math.floor(Math.random()*5)];const st=o[0]*60+Math.floor(Math.random()*((o[1]-o[0])*2-s[2]+1))*30;const day=ymd(d);if(day===ymd(n)&&st<n.getHours()*60+n.getMinutes()+30)continue;if(!free(b,day,st,s[2]))continue;
+  const x={id:"o"+Date.now(),d:day,t:mt(st),svc:s[0],name:N[Math.floor(Math.random()*N.length)],phone:"0176 555 0"+pad(Math.floor(Math.random()*99)),src:"online"};b.push(x);save(b);notify(x);return}};
+let known=new Set(load().map(x=>x.id));
+window.addEventListener("storage",e=>{if(e.key!==KEY)return;const b=load();b.filter(x=>!known.has(x.id)&&x.src==="online").forEach(notify);known=new Set(b.map(x=>x.id));render()});
+const _save=save;save=b=>{_save(b);known=new Set(b.map(x=>x.id))};
+let W="0";try{W=localStorage.getItem(WKEY)||"0"}catch(e){}
+const seg=document.getElementById("seg");const setW=v=>{seg.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.w===v));try{localStorage.setItem(WKEY,v)}catch(e){}};
+seg.onclick=e=>{const b=e.target.closest("button");if(b)setW(b.dataset.w)};setW(W);
+render();setInterval(render,60000);
+}
+</script>
+</body>
+</html>
